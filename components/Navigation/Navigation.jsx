@@ -5,7 +5,6 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { Tabs } from 'expo-router';
 import Noti from '../Notification/Noti.jsx';
 import Profile from '../Profile/Profile.jsx';
-import Favorite from '../Favorite/Favorite.jsx';
 import Home from '../Home/Home.jsx'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 const Tab = createBottomTabNavigator();
@@ -43,21 +42,6 @@ const Navigation = () => {
             name={focused ? "home" : "home-outline"} 
             size={24}
             color={focused ? "#FE3734" : "black"}
-            />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name={SCREENS.FAVORITE}
-        component={Favorite}
-        options={{
-          title: '',
-          tabBarIcon: ({ focused }) => (
-            <MaterialCommunityIcons 
-            name={focused ? "heart" : "cards-heart-outline"} 
-            size={24}
-            color={focused ? "#FE3734" : "black"}
-            
             />
           ),
         }}

@@ -14,24 +14,63 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { LogoLoginIcon, YearIcon } from '../../assets/icon';
-import HeaderIcon from '../../assets/HeaderIcon.png'
+import HeaderIcon from '../../assets/HeaderIcon.png';
+
 const Login = ({ navigation }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+
+    const handleLogin = async () => {
+        try {
+            const response = await axios.post('http://10.87.47.231:8000/api/v1/auth/login', {
+                email,
+                password,
+            });
     
-    return (    
+            if (response.data.accessToken) {
+                const { _id, name } = response.data.user;
+    
+                // Create a single object to store all user data
+                const userData = {
+                    userToken: response.data.accessToken,
+                    userId: _id,
+                    userName: name,
+                    userEmail: email,
+                    userPassword: password,
+                };
+    
+                // Store the entire user data object as a JSON string under "UserData"
+                await AsyncStorage.setItem('UserData', JSON.stringify(userData));
+    
+                navigation.navigate('Navigation'); // Navigate to the next screen
+            } else {
+                Alert.alert('Đăng nhập thất bại', 'Email hoặc mật khẩu không đúng');
+            }
+        } catch (error) {
+            if (error.response) {
+                Alert.alert('Đăng nhập thất bại', error.response.data.message || 'Có lỗi xảy ra, vui lòng thử lại');
+            } else if (error.request) {
+                Alert.alert('Đăng nhập thất bại', 'Không có phản hồi từ máy chủ, vui lòng kiểm tra kết nối mạng');
+            } else {
+                Alert.alert('Đăng nhập thất bại', 'Đã xảy ra lỗi: ' + error.message);
+            }
+        }
+    };
+    
+
+    return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <KeyboardAvoidingView style={styles.container} behavior="padding">
                 <View style={styles.header}>
                     <View style={styles.headerIconContainer}>
-                        <YearIcon/>
-                        <Image style={styles.headerImage} source={HeaderIcon} resizeMode="contain"/>
+                        <YearIcon />
+                        <Image style={styles.headerImage} source={HeaderIcon} resizeMode="contain" />
                     </View>
                 </View>
-                    <View style={styles.logoContainer}>
-                        <LogoLoginIcon />
-                    </View>
-                    <View style={styles.loginBox}> 
+                <View style={styles.logoContainer}>
+                    <Text style={styles.logoText}>Overflower</Text>
+                </View>
+                <View style={styles.loginBox}>
                     <Text style={styles.title}>Đăng Nhập</Text>
                     <TextInput
                         style={styles.input}
@@ -51,11 +90,11 @@ const Login = ({ navigation }) => {
                         secureTextEntry
                     />
 
-                    <TouchableOpacity style={styles.forgotPassword} >
+                    <TouchableOpacity style={styles.forgotPassword}>
                         <Text style={styles.forgotPasswordText}>Quên mật khẩu?</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Navigation')}>
+                    <TouchableOpacity style={styles.button} onPress={handleLogin}>
                         <Text style={styles.buttonText}>Đăng Nhập</Text>
                     </TouchableOpacity>
 
@@ -68,6 +107,8 @@ const Login = ({ navigation }) => {
         </TouchableWithoutFeedback>
     );
 };
+
+export default Login;
 
 const styles = StyleSheet.create({
     container: {
@@ -85,19 +126,22 @@ const styles = StyleSheet.create({
         zIndex: 10,
     },
     loginBox: {
-        width: '80%', // Điều chỉnh kích thước của khung
+        width: '80%',
         padding: 20,
         borderColor: 'gray',
         borderWidth: 1,
         borderRadius: 10,
-        alignItems: 'center', // Canh giữa các phần tử bên trong
+        alignItems: 'center',
         marginBottom: 10,
-        top:80,
+        top: 80,
     },
     logoContainer: {
         marginBottom: 10,
-        marginLeft:20,
-        top:80
+        marginLeft: 20,
+        top: 80,
+    },
+    logoText: {
+        fontSize: 40,
     },
     title: {
         fontSize: 32,
@@ -118,7 +162,7 @@ const styles = StyleSheet.create({
     },
     forgotPassword: {
         alignSelf: 'flex-end',
-        marginRight:35,
+        marginRight: 35,
         marginBottom: 10,
     },
     forgotPasswordText: {
@@ -153,12 +197,10 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
         paddingLeft: 10,
     },
-    headerImage:{
-        position:'absolute',
-        width:200,
-        right:-30,
-        top:-90,
-    }
+    headerImage: {
+        position: 'absolute',
+        width: 200,
+        right: -30,
+        top: -90,
+    },
 });
-
-export default Login;
